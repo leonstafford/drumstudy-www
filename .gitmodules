@@ -1,0 +1,10 @@
+[submodule "plugin/drumstudy-wp-plugin"]
+	path = plugin/drumstudy-wp-plugin
+	url = https://github.com/leonstafford/drumstudy-wp-plugin
+
+[submodule "theme/accessible-minimalism-wordpress-theme"]
+	path = theme/accessible-minimalism-wordpress-theme
+	url = https://github.com/leonstafford/accessible-minimalism-wordpress-theme.git
+[submodule "theme/drumstudy-child-theme"]
+	path = theme/drumstudy-child-theme
+	url = https://github.com/leonstafford/drumstudy-child-theme.git

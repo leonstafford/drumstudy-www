@@ -1,0 +1,35 @@
+name: deploy
+
+on:
+  push:
+    branches:
+    - main
+jobs:
+  deploy:
+    name: Deploy via sFTP
+    runs-on: ubuntu-latest
+    env:
+      SFTP_USER: ${{ secrets.SFTP_USER }}
+      SFTP_HOST: ${{ secrets.SFTP_HOST }}
+      SFTP_PORT: ${{ secrets.SFTP_PORT }}
+      SFTP_PASSWORD: ${{ secrets.SFTP_PASSWORD }}
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v2
+        with:
+          submodules: 'true'
+      - name: Install lftp
+        run: sudo apt-get install -qy lftp
+      - run: mkdir ~/.lftp/
+      - run: echo "set ssl:verify-certificate no" >> ~/.lftp/rc
+      - run: echo "set sftp:auto-confirm yes" >> ~/.lftp/rc
+      - run: mkdir ~/.ssh
+      - run: echo "sftp.strattic.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIG6/zHC5PNIHdKfljbSWuMU63lT1wj6tO8C576QpDl7D" >> ~/.ssh/known_hosts
+      - run: export THEME_NAME=accessible-minimalism-wordpress-theme
+      - run: export CHILD_THEME_NAME=drumstudy-child-theme
+      - run: export PLUGIN_NAME=drumstudy-wp-plugin
+      - run: lftp --password "$SFTP_PASSWORD" -e "cd public_html; put deploy.txt; bye" "sftp://$SFTP_USER@$SFTP_HOST:$SFTP_PORT"
+      - run: lftp --password "$SFTP_PASSWORD" -e "mirror -R -v --transfer-all theme/$THEME_NAME public_html/wp-content/themes/$THEME_NAME; bye" "sftp://$SFTP_USER@$SFTP_HOST:$SFTP_PORT"
+      - run: lftp --password "$SFTP_PASSWORD" -e "mirror -R -v --transfer-all theme/$CHILD_THEME_NAME public_html/wp-content/themes/$CHILD_THEME_NAME; bye" "sftp://$SFTP_USER@$SFTP_HOST:$SFTP_PORT"
+      - run: lftp --password "$SFTP_PASSWORD" -e "mirror -R -v --transfer-all plugin/$PLUGIN_NAME public_html/wp-content/plugins/$PLUGIN_NAME; bye" "sftp://$SFTP_USER@$SFTP_HOST:$SFTP_PORT"
+
